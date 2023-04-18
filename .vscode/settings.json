@@ -1,0 +1,10 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/john/Projects/research-project/nlp-tests/",
+        "/home/john/Projects/research-project/nlp-tests/CODER/pretrain/"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/john/Projects/research-project/nlp-tests/",
+        "/home/john/Projects/research-project/nlp-tests/CODER/pretrain/"
+    ],
+}
