@@ -1,3 +1,11 @@
+# TODO: figure out how to make the negation detection useful for our case.
+# We want negation to be able to check if the term we are processing is negative. If so, we want to skip it.
+# We should use 'neg_model2' because it incorporates the negative terms absent, not, etc.
+
+# TODO: Consider what terms would be useful for the db, if any. If we are checking just single words or concepts, do we need custom preceding and following negations?
+# Custom negations seem to be useful for a patient's chart. But if we are checking pre-formatted data in a database it may not be needed.
+
+
 import spacy
 import scispacy
 from spacy import displacy
