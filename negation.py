@@ -1,0 +1,96 @@
+import spacy
+import scispacy
+from spacy import displacy
+from spacy.matcher import PhraseMatcher
+from spacy.tokens import Span
+from spacy.strings import StringStore
+from negspacy.negation import Negex
+
+nlp0 = spacy.load("en_core_sci_sm")
+nlp1 = spacy.load("en_ner_bc5cdr_md")
+
+# clinical_note = "Patient resting in bed. Patient given azithromycin without any difficulty. Patient has audible wheezing, states chest tightness. No evidence of hypertension. Patient denies nausea at this time. zofran declined. Patient is also having intermittent sweating associated with pneumonia. Patient refused pain but tylenol still given. Neither substance abuse nor alcohol use however cocaine once used in the last year. Alcoholism unlikely. Patient has headache and fever. Patient is not diabetic. No signs of diarrhea. Lab reports confirm lymphocytopenia. Cardaic rhythm is Sinus bradycardia. Patient also has a history of cardiac injury. No kidney injury reported. No abnormal rashes or ulcers. Patient might not have liver disease. Confirmed absence of hemoptysis. Although patient has severe pneumonia and fever, test reports are negative for COVID-19 infection. COVID-19 viral infection absent."
+clinical_note = "RECOMMENDATIONS The USPSTF recommends 1-time screening for abdominal aortic aneurysm with ultrasonography in men aged 65 to 75 years who have ever smoked. (B recommendation) The USPSTF recommends that clinicians selectively offer screening for abdominal aortic aneurysm with ultrasonography in men aged 65 to 75 years who have never smoked rather than routinely screening all men in this group."
+
+# lemmatizing the notes to capture all forms of negation(e.g., deny: denies, denying)
+def lemmatize(note, nlp):
+    doc = nlp(note)
+    lemNote = [wd.lemma_ for wd in doc]
+    return " ".join(lemNote)
+
+lem_clinical_note = lemmatize(clinical_note, nlp0)
+
+# Creating a doc object using BC5CDR model
+# doc = nlp1(lem_clinical_note);
+doc = nlp1(lem_clinical_note)
+
+
+# modify options for displacy NER visualization
+def get_entity_options():
+    entities = ["DISEASE", "CHEMICAL", "NEG_ENTITY"]
+    colors = {'DISEASE': 'linear-gradient(180deg, #66ffcc, #abf763)', 'CHEMICAL': 'linear-gradient(90deg, #aa9cfc, #fc9ce7)', "NEG_ENTITY":'linear-gradient(90deg, #ffff66, #ff6600)'}
+    options = {"ents": entities, "colors": colors}
+    return options
+
+options = get_entity_options()
+
+
+#adding a new pipeline component to identify negation
+def neg_model(nlp_model):
+    nlp = spacy.load(nlp_model, disable=['parser'])
+    nlp.add_pipe('sentencizer')
+    nlp.add_pipe("negex")
+    return nlp
+
+# Negspacy sets a new attribute e._.negex to True if a negative concept is encountered
+
+def negation_handling(nlp_model, note, neg_model):
+    results = []
+    nlp = neg_model(nlp_model)
+    note = note.split(".") #sentence tokenization based on delimeter
+    note = [n.strip() for n in note] #remove extra spaces at the beg. and end of sentence
+    for t in note:
+        print('### t in note loop: \nT: ', t)
+
+        doc = nlp(t)
+        print('### t in note loop: \ndoc: ', str(doc))
+
+        for e in doc.ents:
+            rs = str(e._.negex)
+            if rs == "True":
+                results.append(e.text)
+    return results
+
+# list of negative concepts from clinical note identified by negspacy
+results0 = negation_handling('en_ner_bc5cdr_md', lem_clinical_note, neg_model)
+# results1 = negation_handling('en_core_sci_sm', lem_clinical_note, neg_model)
+
+
+# identify span objects of matched negative phrases from clinical note
+def match(nlp, terms, label):
+    patterns = [nlp.make_doc(text) for text in terms]
+    matcher = PhraseMatcher(nlp.vocab)
+    matcher.add(label, None, *patterns)
+    return matcher
+
+# replace labels for identified negative entities
+def overwrite_ent_label(matcher, doc):
+    matches = matcher(doc)
+    seen_tokens = set()
+    new_entities = []
+    entities = doc.ents
+    for match_id, start, end in matches:
+        if start not in seen_tokens and end - 1 not in seen_tokens:
+            new_entities.append(Span(doc, start, end, label=match_id))
+            entities = [e for e in entities if not (e.start < end and e.end > start)]
+            seen_tokens.update(range(start, end))
+    doc.ents = tuple(entities) + tuple(new_entities)
+    return doc
+
+matcher = match(nlp1, results0, "NEG_ENTITY")
+
+# doc0: new doc object with added NEG_ENTITY label
+doc0 = overwrite_ent_label(matcher, doc)
+
+# visualizing identified Named Entities in clinical input text
+displacy.serve(doc0, style='ent', options=options)
