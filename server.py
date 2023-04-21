@@ -1,11 +1,12 @@
 from flask import Flask, request, make_response, jsonify
 import numpy as np
 from biobert import getSimiliarity
+from negation import execNegation
 import json
 
 app = Flask(__name__)
 
-@app.route("/getsimilarity", )
+@app.route("/getsimilarity")
 def run_similarity():
     p1 = request.args["p1"]
     p2 = request.args["p2"]
@@ -17,6 +18,18 @@ def run_similarity():
     resp = app.response_class(response=json.dumps(formatted_results), mimetype='application/json')
 
     return resp
+
+@app.route('/negation')
+def exec_negation():
+    # TODO: Make the data come from the req body, not req args
+    text = request.args['text']
+
+    # Results is a spacy.token.doc.Doc object (aka 'Doc' object)
+    # We can do a lot with this object. If we just want the neg entities, use results.ents (Doc.ents)
+    # see all posibilities here: https://spacy.io/api/doc
+    results = execNegation(text)
+    print("\n\n======== Results ========\n", results.to_json)
+    return make_response(json.dumps(results), mimetype='application/json')
 
 
 
