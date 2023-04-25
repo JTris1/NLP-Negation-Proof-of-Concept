@@ -146,8 +146,8 @@ def overwrite_ent_label(matcher, doc):
 
 # Execute everything
 def execNegation(text):
-    lem_text = lemmatize(text, nlp1);
-    doc = nlp1(lem_text);
+    lem_text = lemmatize(text, nlp1)
+    doc = nlp1(lem_text)
 
     results = negation_handling('en_ner_bc5cdr_md', lem_text, neg_model2)
 

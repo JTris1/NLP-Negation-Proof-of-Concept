@@ -17,9 +17,6 @@ cymem==2.0.7
 Cython==0.29.34
 decorator==5.1.1
 dm-tree==0.1.8
-en-core-sci-sm @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_core_sci_sm-0.5.1.tar.gz
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1-py3-none-any.whl
-en-ner-bc5cdr-md @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bc5cdr_md-0.5.1.tar.gz
 etils==1.2.0
 exceptiongroup==1.1.1
 executing==1.2.0
@@ -111,7 +108,6 @@ rsa==4.9
 scikit-learn==1.2.2
 scipy==1.10.1
 scispacy==0.5.1
-sent2vec @ file:///home/john/Downloads/sent2vec-master
 six==1.16.0
 smart-open==6.3.0
 spacy==3.4.4
