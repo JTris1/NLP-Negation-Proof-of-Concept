@@ -69,7 +69,6 @@ def neg_model2(nlp_model):
     nlp = spacy.load(nlp_model, disable=['parser'])
     nlp.add_pipe('sentencizer')
     nlp.add_pipe('negex')
-    print(nlp.get_pipe_meta('negex'))
 
     return nlp
 
@@ -157,4 +156,4 @@ def execNegation(text):
     return doc_w_negs
 
 
-execNegation('RECOMMENDATIONS The USPSTF recommends 1-time screening for abdominal aortic aneurysm with ultrasonography in men aged 65 to 75 years who have ever smoked. (B recommendation) The USPSTF recommends that clinicians selectively offer screening for abdominal aortic aneurysm with ultrasonography in men aged 65 to 75 years who have never smoked rather than routinely screening all men in this group.')
+# execNegation('RECOMMENDATIONS The USPSTF recommends 1-time screening for abdominal aortic aneurysm with ultrasonography in men aged 65 to 75 years who have ever smoked. (B recommendation) The USPSTF recommends that clinicians selectively offer screening for abdominal aortic aneurysm with ultrasonography in men aged 65 to 75 years who have never smoked rather than routinely screening all men in this group.')

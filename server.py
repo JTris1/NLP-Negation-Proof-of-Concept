@@ -19,18 +19,24 @@ def run_similarity():
 
     return resp
 
-@app.route('/negation')
+@app.route('/negation', methods = ['POST'])
 def exec_negation():
     # TODO: Make the data come from the req body, not req args
-    # text = request.body['text']
-    text = request.form['text']
+    text = request.form['text'];
 
     # Results is a spacy.token.doc.Doc object (aka 'Doc' object)
     # We can do a lot with this object. If we just want the neg entities, use results.ents (Doc.ents)
     # see all posibilities here: https://spacy.io/api/doc
     results = execNegation(text)
-    print("\n\n======== Results ========\n", results.to_json())
-    resp = app.response_class(response=json.dumps(results.to_json()), mimetype='application/json')
+
+    # Convert from Span to string
+    str_results = []
+    for i in results.ents:
+        str_results.append(i.__str__())
+
+    json_response = {'results': str_results}
+
+    resp = app.response_class(response=json.dumps(json_response), mimetype='application/json')
     return resp
 
 
