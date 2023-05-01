@@ -3,6 +3,7 @@ import numpy as np
 from biobert import getSimiliarity
 from negation import execNegation
 import json
+import re
 
 app = Flask(__name__)
 
@@ -19,6 +20,7 @@ def run_similarity():
 
     return resp
 
+
 @app.route('/negation', methods = ['POST'])
 def exec_negation():
     # TODO: Make the data come from the req body, not req args
@@ -29,12 +31,17 @@ def exec_negation():
     # see all posibilities here: https://spacy.io/api/doc
     results = execNegation(text)
 
-    # Convert from Span to string
-    str_results = []
-    for i in results.ents:
-        str_results.append(i.__str__())
+    # Remove punction from text so we don't have to process it in our comparisons and convert it to a list with split()
+    res_text = re.sub(r'[^\w\s]', '', results.text).split()
 
-    json_response = {'results': str_results}
+    # Remove negative ents from text
+    for i, word in enumerate(res_text):
+        for ent in results.ents:
+            if(str(ent) == word):
+                print('Removed ' + str(ent) + ' from list.')
+                res_text.pop(i)
+
+    json_response = {'text': res_text}
 
     resp = app.response_class(response=json.dumps(json_response), mimetype='application/json')
     return resp
