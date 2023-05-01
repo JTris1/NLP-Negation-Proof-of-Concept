@@ -34,10 +34,13 @@ def exec_negation():
     # Remove punction from text so we don't have to process it in our comparisons and convert it to a list with split()
     res_text = re.sub(r'[^\w\s]', '', results.text).split()
 
+    print(results.ents)
+
     # Remove negative ents from text
     for i, word in enumerate(res_text):
         for ent in results.ents:
-            if(str(ent) == word):
+            label = ent.label_
+            if(str(ent) == word and label == "NEG_ENTITY"):
                 print('Removed ' + str(ent) + ' from list.')
                 res_text.pop(i)
 
