@@ -23,8 +23,10 @@ def run_similarity():
 
 @app.route('/negation', methods = ['POST'])
 def exec_negation():
+    print('Beginning negation...')
     # TODO: Make the data come from the req body, not req args
     text = request.form['text'];
+    compare_to = request.form['compare_to'];
 
     # Results is a spacy.token.doc.Doc object (aka 'Doc' object)
     # We can do a lot with this object. If we just want the neg entities, use results.ents (Doc.ents)
@@ -34,7 +36,7 @@ def exec_negation():
     # Remove punction from text so we don't have to process it in our comparisons and convert it to a list with split()
     res_text = re.sub(r'[^\w\s]', '', results.text).split()
 
-    print(results.ents)
+    # print(results.ents)
 
     # Remove negative ents from text
     for i, word in enumerate(res_text):
@@ -43,6 +45,10 @@ def exec_negation():
             if(str(ent) == word and label == "NEG_ENTITY"):
                 print('Removed ' + str(ent) + ' from list.')
                 res_text.pop(i)
+
+    if(compare_to):
+        print("Beginning comparison")
+        print("TODO: implement comparisons")
 
     json_response = {'text': res_text}
 
